@@ -85,6 +85,12 @@ func (at *tracker) Done() {
 }
 
 func (at *tracker) StartRequest(attrs *mixerpb.Attributes) (MutableBag, error) {
+	// replace the dictionary if requested
+	if len(attrs.Dictionary) > 0 {
+		at.dictionaries.Release(at.currentDictionary)
+		at.currentDictionary = at.dictionaries.Intern(attrs.Dictionary)
+	}
+
 	// find the context or create it if needed
 	rb := at.contexts[attrs.AttributeContext]
 	if rb == nil {
@@ -92,19 +98,8 @@ func (at *tracker) StartRequest(attrs *mixerpb.Attributes) (MutableBag, error) {
 		at.contexts[attrs.AttributeContext] = rb
 	}
 
-	dict := at.currentDictionary
-	if len(attrs.Dictionary) > 0 {
-		dict = attrs.Dictionary
-	}
-
-	if err := rb.update(dict, attrs); err != nil {
+	if err := rb.update(at.currentDictionary, attrs); err != nil {
 		return nil, err
-	}
-
-	// remember any new dictionary for later
-	if len(attrs.Dictionary) > 0 {
-		at.dictionaries.Release(at.currentDictionary)
-		at.currentDictionary = at.dictionaries.Intern(attrs.Dictionary)
 	}
 
 	// to maintain the integrity of the API-level attribute protocol,
