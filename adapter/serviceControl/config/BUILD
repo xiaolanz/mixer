@@ -7,6 +7,7 @@ gogoslick_proto_library(
     },
     imports = [
         "external/com_github_gogo_protobuf",
+        "external/com_github_google_protobuf/src",
     ],
     inputs = [
         "@com_github_gogo_protobuf//gogoproto:go_default_library_protos",
@@ -15,7 +16,7 @@ gogoslick_proto_library(
         "config.proto",
     ],
     verbose = 0,
-    visibility = ["//adapter/statsd:__pkg__"],
+    visibility = ["//adapter/serviceControl:__pkg__"],
     deps = [
         "@com_github_gogo_protobuf//gogoproto:go_default_library",
     ],

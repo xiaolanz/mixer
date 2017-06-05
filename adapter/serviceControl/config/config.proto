@@ -16,9 +16,19 @@ syntax = "proto3";
 
 package adapter.servicecontrol.config;
 
+import "gogoproto/gogo.proto";
+
 option go_package = "config";
+option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.equal_all) = false;
+option (gogoproto.gostring_all) = false;
 
 message Params {
     // Address of the service controller server, e.g. localhost:8125
     string address = 1;
+
+    // Producer project ID
+    string producer_project_id = 2;
+
+    // Credentials ??
 }
