@@ -15,14 +15,8 @@
 package servicecontrol
 
 import (
-	"fmt"
-
-	multierror "github.com/hashicorp/go-multierror"
-
 	"istio.io/mixer/adapter/statsd/config"
 	"istio.io/mixer/pkg/adapter"
-	"istio.io/mixer/pkg/pool"
-	"istio.io/mixer/bazel-mixer/external/io_bazel_rules_go_toolchain/src/cmd/go/testdata/testinternal3"
 )
 
 type (
@@ -65,13 +59,7 @@ func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics ma
 }
 
 func (a *aspect) Record(values []adapter.Value) error {
-	var result *multierror.Error
-	for _, v := range values {
-		if err := a.record(v); err != nil {
-			result = multierror.Append(result, err)
-		}
-	}
-	return result.ErrorOrNil()
+	return nil
 }
 
 func (a *aspect) record(value adapter.Value) error {
