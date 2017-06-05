@@ -53,9 +53,9 @@ new_go_repository(
 
 new_git_repository(
     name = "com_github_googleapis_googleapis",
+    build_file = "BUILD.googleapis",
     commit = "13ac2436c5e3d568bd0e938f6ed58b77a48aba15",  # Oct 21, 2016 (only release pre-dates sha)
     remote = "https://github.com/googleapis/googleapis.git",
-    build_file = "BUILD.googleapis",
 )
 
 new_go_repository(

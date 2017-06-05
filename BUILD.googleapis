@@ -38,11 +38,11 @@ gogoslick_proto_library(
         "google/api/servicecontrol/v1/metric_value.proto",
         "google/api/servicecontrol/v1/operation.proto",
         "google/api/servicecontrol/v1/service_controller.proto",
+        "google/api/annotations.proto",
+        "google/api/http.proto",
+        "google/type/money.proto",
         "google/logging/type/http_request.proto",
         "google/logging/type/log_severity.proto",
-        "google/rpc/error_details.proto",
-        "google/rpc/status.proto",
-        "google/api/annotations.proto",
     ],
     importmap = {
         "google/protobuf/any.proto": "github.com/gogo/protobuf/types",
@@ -52,12 +52,15 @@ gogoslick_proto_library(
     },
     imports = [
         "../../external/com_github_google_protobuf/src",
+        "../../external/com_github_googleapis_googleapis/src",
     ],
     inputs = [
         "@com_github_google_protobuf//:well_known_protos",
+        ":google/rpc"
     ],
     deps = [
         "@com_github_gogo_protobuf//types:go_default_library",
+        ":google/rpc"
     ],
     verbose = 0,
 )
