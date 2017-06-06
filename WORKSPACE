@@ -66,7 +66,7 @@ new_go_repository(
 
 new_go_repository(
     name = "org_golang_google_genproto",
-    commit = "f3350869260a1e80675c8d0e42f1f3a870db2b74", #XXX
+    commit = "f3350869260a1e80675c8d0e42f1f3a870db2b74",  #XXX
     importpath = "google.golang.org/genproto",
 )
 
