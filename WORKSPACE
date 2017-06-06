@@ -336,6 +336,12 @@ new_go_repository(
 )
 
 new_go_repository(
+    name = "org_golang_x_net_context",
+    commit = "I139d531ae87273fdc2409d29d63bb9d67680f30a",  # Apr 20, 2017 (no releases)
+    importpath = "golang.org/x/net/context",
+)
+
+new_go_repository(
     name = "com_github_juju_ratelimit",
     commit = "acf38b000a03e4ab89e40f20f1e548f4e6ac7f72",  # Mar 13, 2017 (no releases)
     importpath = "github.com/juju/ratelimit",
@@ -442,6 +448,12 @@ new_go_repository(
     name = "com_github_grpcecosystem_opentracing",
     commit = "c94552f01d20ad74ec45a8cd967833a9d0b106cf",  #
     importpath = "github.com/grpc-ecosystem/grpc-opentracing",
+)
+
+new_go_repository(
+    name = "com_github_servicecontrol_client",
+    commit = "If1095a4c44e65ea2a545660a5ba2c0779eb1ae02",  # May 19, 2017 (no releases)
+    importpath = "github.com/google/google-api-go-client/servicecontrol/v1",
 )
 
 ##
