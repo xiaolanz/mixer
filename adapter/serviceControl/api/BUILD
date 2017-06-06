@@ -16,11 +16,6 @@ gogoslick_proto_library(
         "@com_github_google_protobuf//:well_known_protos",
     ],
     protos = [
-        "distribution.proto",
-        "http_request.proto",
-        "log_entry.proto",
-        "metric_value.proto",
-        "operation.proto",
         "service_controller.proto",
     ],
     verbose = 0,
