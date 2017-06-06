@@ -37,6 +37,8 @@ gogoslick_proto_library(
     ],
     importmap = {
         "gogoproto/gogo.proto": "github.com/gogo/protobuf/gogoproto",
+        "google/protobuf/descriptor.proto": "github.com/gogo/protobuf/google/protobuf",
+        "google/protobuf/": "github.com/gogo/protobuf/google/protobuf",
     },
     imports = [
         "../../external/com_github_gogo_protobuf/",
