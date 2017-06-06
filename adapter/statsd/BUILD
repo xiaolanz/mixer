@@ -26,5 +26,7 @@ go_test(
         "@com_github_cactus_statsd_client//statsd/statsdtest:go_default_library",
         "@com_github_golang_protobuf//proto:go_default_library",
         "@com_github_googleapis_googleapis//:google/rpc",
+        #XXX testing
+        "@com_github_googleapis_googleapis//:google/api",
     ],
 )
