@@ -36,10 +36,10 @@ gogoslick_proto_library(
         "google/api/http.proto",
     ],
     importmap = {
-        "google/protobuf/descriptor.proto": "github.com/gogo/protobuf/google/protobuf",
+        "gogoproto/gogo.proto": "github.com/gogo/protobuf/gogoproto",
     },
     imports = [
-        "../../external/com_github_googleapis_googleapis/google/api",
+        "../../external/com_github_gogo_protobuf/",
         "../../external/com_github_google_protobuf/src",
     ],
     inputs = [
@@ -48,6 +48,7 @@ gogoslick_proto_library(
     ],
     deps = [
         "@com_github_gogo_protobuf//gogoproto:go_default_library",
+        "@com_github_gogo_protobuf//proto:go_default_library",
     ],
     verbose = 0,
 )

@@ -65,6 +65,12 @@ new_go_repository(
 )
 
 new_go_repository(
+    name = "org_golang_google_genproto",
+    commit = "f3350869260a1e80675c8d0e42f1f3a870db2b74", #XXX
+    importpath = "google.golang.org/genproto",
+)
+
+new_go_repository(
     name = "com_github_spf13_cobra",
     commit = "35136c09d8da66b901337c6e86fd8e88a1a255bd",  # Jan 30, 2017 (no releases)
     importpath = "github.com/spf13/cobra",
