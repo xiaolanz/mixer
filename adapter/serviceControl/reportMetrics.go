@@ -15,7 +15,7 @@
 package servicecontrol
 
 import (
-	"istio.io/mixer/adapter/statsd/config"
+	"istio.io/mixer/adapter/servicecontrol/config"
 	"istio.io/mixer/pkg/adapter"
 )
 

@@ -1,7 +1,7 @@
 load("@org_pubref_rules_protobuf//gogo:rules.bzl", "gogoslick_proto_library")
 
 gogoslick_proto_library(
-    name = "go_default_library",
+    name = "api",
     importmap = {
         "gogoproto/gogo.proto": "github.com/gogo/protobuf/gogoproto",
     },
