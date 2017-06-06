@@ -15,38 +15,46 @@
 package servicecontrol
 
 import (
-	"time"
+	"encoding/gob"
+	"net/http"
+	"os"
 
-	pb "github.com/googleapis/googleapis/google/api/servicecontrol/v1/"
-	"google.golang.org/grpc"
+	"github.com/google/google-api-go-client/servicecontrol/v1"
+	"golang.org/x/net/context"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
-type clientState struct {
-	client     pb.ServiceControlClient
-	connection *grpc.ClientConn
-}
-
-func createAPIClient(address string) (*clientState, error) {
-	cs := clientState{}
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
-	var err error
-	if cs.connection, err = grpc.Dial(address, opts...); err != nil {
+func createAPIClient(clientID string, clientSecret string, scope string, tokenFile string) (*v1.Service, error) {
+	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{
+		Transport: http.DefaultTransport})
+	oauthConfig := &oauth2.Config{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		Endpoint:     google.Endpoint,
+		Scopes:       []string{scope},
+	}
+	token, err := tokenFromFile(tokenFile)
+	if err != nil {
 		return nil, err
 	}
-
-	cs.client = pb.NewServiceControlClient(cs.connection)
-	return &cs, nil
+	httpClient := oauthConfig.Client(ctx, token)
+	ss, err := v1.New(httpClient)
+	return ss, err
 }
 
-func deleteAPIClient(cs *clientState) error {
-	// TODO: This is to compensate for this bug: https://github.com/grpc/grpc-go/issues/1059
-	//       Remove this delay once that bug is fixed.
-	time.Sleep(50 * time.Millisecond)
-
-	err := cs.connection.Close()
-	cs.client = nil
-	cs.connection = nil
+func deleteAPIClient(s *v1.Service) error {
+	err := s.client.Close()
+	s.client = nil
 	return err
+}
+
+func tokenFromFile(file string) (*oauth2.Token, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	t := new(oauth2.Token)
+	err = gob.NewDecoder(f).Decode(t)
+	return t, err
 }
