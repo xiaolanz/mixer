@@ -41,7 +41,7 @@ var (
 	desc        = "Pushes metrics to service controller"
 	defaultConf = &config.Params{
 		ClientId:     "mixc",
-		ServiceName:  "chemistprober.googleprod.com",
+		ServiceName:  "xiaolan-library-example.sandbox.googleapis.com",
 		ClientSecret: "",
 		Scope:        "",
 		TokenFile:    "",
@@ -72,22 +72,26 @@ func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics ma
 func (a *aspect) Record(values []adapter.Value) error {
 	var vs []*servicecontrol.MetricValueSet
 	for _, v := range values {
+		// Only for request name.
+		if v.Definition.Name != "request_count" {
+			continue
+		}
 		var mv servicecontrol.MetricValue
-		mv.Labels = mapLabels(v.Labels)
+		mv.Labels = fillLabels(v.Labels)
 		mv.StartTime = v.StartTime.String()
 		mv.EndTime = v.EndTime.String()
 		i, _ := v.Int64()
 		mv.Int64Value = &i
 
 		ms := &servicecontrol.MetricValueSet{
-			MetricName:   v.Definition.Name,
+			MetricName:   "serviceruntime.googleapis.com/api/consumer/request_count",
 			MetricValues: []*servicecontrol.MetricValue{&mv},
 		}
 		vs = append(vs, ms)
 	}
 
 	op := &servicecontrol.Operation{
-		OperationId:     fmt.Sprintf("%d", rand.Int()), // TODO use uuid
+		OperationId:     fmt.Sprintf("mixer-test-report-id-%d", rand.Int()), // TODO use uuid
 		OperationName:   "reportMetrics",
 		StartTime:       fmt.Sprintf("%d", time.Now()),
 		EndTime:         fmt.Sprintf("%d", time.Now()),
@@ -101,9 +105,12 @@ func (a *aspect) Record(values []adapter.Value) error {
 	return err
 }
 
-func mapLabels(labels map[string]interface{}) map[string]string {
+func fillLabels(labels map[string]interface{}) map[string]string {
 	ml := make(map[string]string)
 	for k, v := range labels {
+		if k != "response_code" {
+			continue
+		}
 		ml[k] = fmt.Sprintf("%v", v)
 	}
 	return ml
