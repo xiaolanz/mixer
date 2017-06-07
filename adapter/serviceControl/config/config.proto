@@ -14,7 +14,9 @@
 
 syntax = "proto3";
 
-package adapter.servicecontrol.config;
+package adapter.serviceControl.config;
+
+import "gogoproto/gogo.proto";
 
 import "gogoproto/gogo.proto";
 
@@ -28,4 +30,5 @@ message Params {
     string client_secret = 2;
     string scope = 3;
     string token_file = 4;
+    string service_name = 5;
 }
