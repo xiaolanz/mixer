@@ -19,8 +19,6 @@ import (
 	"math/rand"
 	"time"
 
-	"google.golang.org/api/servicecontrol/v1"
-
 	"istio.io/mixer/adapter/serviceControl/config"
 	"istio.io/mixer/pkg/adapter"
 )

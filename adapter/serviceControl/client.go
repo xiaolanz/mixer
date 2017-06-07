@@ -19,10 +19,10 @@ import (
 	"net/http"
 	"os"
 
-	"google.golang.org/api/servicecontrol/v1"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	servicecontrol "google.golang.org/api/servicecontrol/v1"
 )
 
 func createAPIClient(clientID string, clientSecret string, scope string, tokenFile string) (*servicecontrol.Service, error) {
