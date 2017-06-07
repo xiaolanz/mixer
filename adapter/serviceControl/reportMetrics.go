@@ -37,7 +37,7 @@ type (
 )
 
 var (
-	name        = "service_control_metrics"
+	name        = "serviceControl"
 	desc        = "Pushes metrics to service controller"
 	defaultConf = &config.Params{
 		ClientId:     "mixc",
@@ -58,7 +58,7 @@ func newBuilder() *builder {
 }
 
 func (b *builder) ValidateConfig(c adapter.Config) (ce *adapter.ConfigErrors) {
-	return
+	return nil
 }
 
 func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics map[string]*adapter.MetricDefinition) (adapter.MetricsAspect, error) {
@@ -96,7 +96,7 @@ func (a *aspect) Record(values []adapter.Value) error {
 		StartTime:       fmt.Sprintf("%d", time.Now()),
 		EndTime:         fmt.Sprintf("%d", time.Now()),
 		MetricValueSets: vs,
-		Labels: map[string]string{"cloud.googleapis.com/location": "global"},
+		Labels:          map[string]string{"cloud.googleapis.com/location": "global"},
 	}
 	rq := &servicecontrol.ReportRequest{
 		Operations: []*servicecontrol.Operation{op},

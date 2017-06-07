@@ -33,7 +33,6 @@ rules:
         maxAmount: 5000
         expiration: 1s
   - kind: metrics
-    adapter: serviceControl
     params:
       metrics:
       - descriptor_name: request_count
