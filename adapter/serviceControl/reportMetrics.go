@@ -19,7 +19,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/google/google-api-go-client/servicecontrol/v1"
+	"google.golang.org/api/servicecontrol/v1"
 
 	"istio.io/mixer/adapter/serviceControl/config"
 	"istio.io/mixer/pkg/adapter"
@@ -32,7 +32,7 @@ type (
 
 	aspect struct {
 		serviceName string
-		service     *v1.Service
+		service     *servicecontrol.Service
 	}
 )
 
@@ -70,33 +70,33 @@ func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics ma
 }
 
 func (a *aspect) Record(values []adapter.Value) error {
-	vs := make([]*v1.MetricValueSet)
+	vs := make([]*servicecontrol.MetricValueSet)
 	for _, v := range values {
-		var mv v1.MetricValue
+		var mv servicecontrol.MetricValue
 		mv.Labels = mapLabels(v.Labels)
 		mv.StatTime = v.StartTime
 		mv.EndTime = v.EndTime
 		i, _ := v.Int64()
 		mv.Int64Value = &i
 
-		ms := &v1.MericValueSet{
-			metricName:   v.Definition.Name,
-			metricValues: []*v.MetricValue{&mv},
+		ms := &servicecontrol.MericValueSet{
+			MetricName:   v.Definition.Name,
+			MetricValues: []*servicecontrol.MetricValue{&mv},
 		}
 		vs.append(ms)
 	}
 
-	op := &v1.Operation{
+	op := &servicecontrol.Operation{
 		OperationId:     fmt.Sprintf("%d", rand.Int()), // TODO use uuid
 		OpeationName:    "reportMetrics",
 		StartTime:       fmt.Sprintf("%d", time.Now()),
 		EndTime:         fmt.Sprintf("%d", time.Now()),
 		MetricValueSets: vs,
 	}
-	rq := &v1.ReportRequest{
-		Operations: []*v1.Operation{op},
+	rq := &servicecontrol.ReportRequest{
+		Operations: []*servicecontrol.Operation{op},
 	}
-	rp, err := service.Services.Report(a.serviceName, rq).Do()
+	rp, err := a.service.Services.Report(a.serviceName, rq).Do()
 	fmt.Printf("service control metric response for operation id %s: %v", op.OperationId, rp)
 	return err
 }

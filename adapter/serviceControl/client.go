@@ -19,13 +19,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/google/google-api-go-client/servicecontrol/v1"
+	"google.golang.org/api/servicecontrol/v1"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
 
-func createAPIClient(clientID string, clientSecret string, scope string, tokenFile string) (*v1.Service, error) {
+func createAPIClient(clientID string, clientSecret string, scope string, tokenFile string) (*servicecontrol.Service, error) {
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{
 		Transport: http.DefaultTransport})
 	oauthConfig := &oauth2.Config{
@@ -39,7 +39,7 @@ func createAPIClient(clientID string, clientSecret string, scope string, tokenFi
 		return nil, err
 	}
 	httpClient := oauthConfig.Client(ctx, token)
-	s, err := v1.New(httpClient)
+	s, err := servicecontrol.New(httpClient)
 	return s, err
 }
 
