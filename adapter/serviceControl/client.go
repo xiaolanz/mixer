@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package servicecontrol
+package serviceControl
 
 import (
 	"encoding/gob"
@@ -39,14 +39,8 @@ func createAPIClient(clientID string, clientSecret string, scope string, tokenFi
 		return nil, err
 	}
 	httpClient := oauthConfig.Client(ctx, token)
-	ss, err := v1.New(httpClient)
-	return ss, err
-}
-
-func deleteAPIClient(s *v1.Service) error {
-	err := s.client.Close()
-	s.client = nil
-	return err
+	s, err := v1.New(httpClient)
+	return s, err
 }
 
 func tokenFromFile(file string) (*oauth2.Token, error) {

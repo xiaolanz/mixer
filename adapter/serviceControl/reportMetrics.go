@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package servicecontrol
+package serviceControl
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/google/google-api-go-client/servicecontrol/v1"
 
@@ -29,7 +31,8 @@ type (
 	}
 
 	aspect struct {
-		service *v1.Service
+		serviceName string
+		service     *v1.Service
 	}
 )
 
@@ -37,8 +40,11 @@ var (
 	name        = "service_control_metrics"
 	desc        = "Pushes metrics to service controller"
 	defaultConf = &config.Params{
-		//Address: "chemistprober.googleprod.com",
-		client_id: "mixc",
+		ClientId:     "mixc",
+		ServiceName:  "chemistprober.googleprod.com",
+		ClientSecret: "",
+		Scope:        "",
+		TokenFile:    "",
 	}
 )
 
@@ -60,37 +66,45 @@ func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics ma
 
 	ss, err := createAPIClient(params.clientId, params.clientSecret, params.scope, params.tokenFile)
 
-	return &aspect{ss}, err
+	return &aspect{params.ServiceName, ss}, err
 }
 
 func (a *aspect) Record(values []adapter.Value) error {
-	// create proto
-	// create operation
-	for v := range values {
+	vs := make([]*v1.MetricValueSet)
+	for _, v := range values {
 		var mv v1.MetricValue
-		mv.labels = mapLabels(v.Labels, v.Definition.Labels)
+		mv.Labels = mapLabels(v.Labels)
 		mv.StatTime = v.StartTime
 		mv.EndTime = v.EndTime
-		mv.value, err = v.Int64()
+		i, _ := v.Int64()
+		mv.Int64Value = &i
 
 		ms := &v1.MericValueSet{
-			metricName:   v.Definition.name,
-			metricValues: []v.MetricValue{mv},
+			metricName:   v.Definition.Name,
+			metricValues: []*v.MetricValue{&mv},
 		}
-		// load values into operation
+		vs.append(ms)
 	}
 
-	a.service.report()
-	return nil
+	op := &v1.Operation{
+		OperationId:     fmt.Sprintf("%d", rand.Int()), // TODO use uuid
+		OpeationName:    "reportMetrics",
+		StartTime:       fmt.Sprintf("%d", time.Now()),
+		EndTime:         fmt.Sprintf("%d", time.Now()),
+		MetricValueSets: vs,
+	}
+	rq := &v1.ReportRequest{
+		Operations: []*v1.Operation{op},
+	}
+	rp, err := service.Services.Report(a.serviceName, rq).Do()
+	fmt.Printf("service control metric response for operation id %s: %v", op.OperationId, rp)
+	return err
 }
 
-func mapLabels(labels map[string]interface{}, labelType map[string]adapter.LabelType) (map[string]string, error) {
+func mapLabels(labels map[string]interface{}) map[string]string {
 	ml := make(map[string]string)
 	for k, v := range labels {
-		if labelType[k] != adapter.String {
-			return nil, fmt.Errorf("Only support string labels")
-		}
-		ml[k] = string(v)
+		ml[k] = fmt.Sprintf("%v", v)
 	}
 	return ml
 }
@@ -101,5 +115,6 @@ func (a *aspect) record(value adapter.Value) error {
 }
 
 func (a *aspect) Close() error {
-	return deleteAPIClient(a.cs)
+	//TODO doesn't need?
+	return nil
 }

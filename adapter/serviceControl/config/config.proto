@@ -14,13 +14,19 @@
 
 syntax = "proto3";
 
-package adapter.servicecontrol.config;
+package adapter.serviceControl.config;
+
+import "gogoproto/gogo.proto";
 
 option go_package = "config";
+option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.equal_all) = false;
+option (gogoproto.gostring_all) = false;
 
 message Params {
     string client_id = 1;
     string client_secret = 2;
     string scope = 3;
     string token_file = 4;
+    string service_name = 5;
 }
