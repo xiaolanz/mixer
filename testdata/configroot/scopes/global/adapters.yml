@@ -8,7 +8,7 @@ adapters:
     impl: stdioLogger
     params:
       logStream: STDERR
-  - name: servicecontrol
+  - name: default
     kind: metrics
     impl: serviceControl
     params:

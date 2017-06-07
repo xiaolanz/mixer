@@ -26,6 +26,7 @@ import (
 	"istio.io/mixer/adapter/statsd"
 	"istio.io/mixer/adapter/stdioLogger"
 	"istio.io/mixer/pkg/adapter"
+	"istio.io/mixer/adapter/serviceControl"
 )
 
 // Inventory returns the inventory of all available adapters.
@@ -40,6 +41,7 @@ func Inventory() []adapter.RegisterFn {
 		statsd.Register,
 		stdioLogger.Register,
 		kubernetes.Register,
+		serviceControl.Register,
 		noop.Register,
 	}
 }

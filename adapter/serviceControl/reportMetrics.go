@@ -96,6 +96,7 @@ func (a *aspect) Record(values []adapter.Value) error {
 		StartTime:       fmt.Sprintf("%d", time.Now()),
 		EndTime:         fmt.Sprintf("%d", time.Now()),
 		MetricValueSets: vs,
+		Labels: map[string]string{"cloud.googleapis.com/location": "global"},
 	}
 	rq := &servicecontrol.ReportRequest{
 		Operations: []*servicecontrol.Operation{op},
