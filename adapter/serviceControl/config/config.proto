@@ -19,6 +19,8 @@ package adapter.servicecontrol.config;
 option go_package = "config";
 
 message Params {
-    // Address of the service controller server, e.g. localhost:8125
-    string address = 1;
+    string client_id = 1;
+    string client_secret = 2;
+    string scope = 3;
+    string token_file = 4;
 }

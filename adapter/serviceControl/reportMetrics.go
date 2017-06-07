@@ -15,6 +15,10 @@
 package servicecontrol
 
 import (
+	"fmt"
+
+	"github.com/google/google-api-go-client/servicecontrol/v1"
+
 	"istio.io/mixer/adapter/serviceControl/config"
 	"istio.io/mixer/pkg/adapter"
 )
@@ -25,7 +29,7 @@ type (
 	}
 
 	aspect struct {
-		clientState *clientState
+		service *v1.Service
 	}
 )
 
@@ -33,7 +37,8 @@ var (
 	name        = "service_control_metrics"
 	desc        = "Pushes metrics to service controller"
 	defaultConf = &config.Params{
-		Address: "chemistprober.googleprod.com",
+		//Address: "chemistprober.googleprod.com",
+		client_id: "mixc",
 	}
 )
 
@@ -53,20 +58,48 @@ func (b *builder) ValidateConfig(c adapter.Config) (ce *adapter.ConfigErrors) {
 func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics map[string]*adapter.MetricDefinition) (adapter.MetricsAspect, error) {
 	params := cfg.(*config.Params)
 
-	cs, err := createAPIClient(params.Address)
+	ss, err := createAPIClient(params.clientId, params.clientSecret, params.scope, params.tokenFile)
 
-	return &aspect{cs}, err
+	return &aspect{ss}, err
 }
 
 func (a *aspect) Record(values []adapter.Value) error {
+	// create proto
+	// create operation
+	for v := range values {
+		var mv v1.MetricValue
+		mv.labels = mapLabels(v.Labels, v.Definition.Labels)
+		mv.StatTime = v.StartTime
+		mv.EndTime = v.EndTime
+		mv.value, err = v.Int64()
+
+		ms := &v1.MericValueSet{
+			metricName:   v.Definition.name,
+			metricValues: []v.MetricValue{mv},
+		}
+		// load values into operation
+	}
+
+	a.service.report()
 	return nil
 }
 
+func mapLabels(labels map[string]interface{}, labelType map[string]adapter.LabelType) (map[string]string, error) {
+	ml := make(map[string]string)
+	for k, v := range labels {
+		if labelType[k] != adapter.String {
+			return nil, fmt.Errorf("Only support string labels")
+		}
+		ml[k] = string(v)
+	}
+	return ml
+}
+
 func (a *aspect) record(value adapter.Value) error {
-	//TODO mapping metrics to chemist proto
+	//TODO do not use
 	return nil
 }
 
 func (a *aspect) Close() error {
-	return deleteAPIClient(a.clientState)
+	return deleteAPIClient(a.cs)
 }
