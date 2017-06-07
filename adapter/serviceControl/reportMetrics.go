@@ -19,9 +19,10 @@ import (
 	"math/rand"
 	"time"
 
+	servicecontrol "google.golang.org/api/servicecontrol/v1"
+
 	"istio.io/mixer/adapter/serviceControl/config"
 	"istio.io/mixer/pkg/adapter"
-	servicecontrol "google.golang.org/api/servicecontrol/v1"
 )
 
 type (
@@ -69,7 +70,7 @@ func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics ma
 }
 
 func (a *aspect) Record(values []adapter.Value) error {
-	var vs  []*servicecontrol.MetricValueSet
+	var vs []*servicecontrol.MetricValueSet
 	for _, v := range values {
 		var mv servicecontrol.MetricValue
 		mv.Labels = mapLabels(v.Labels)
@@ -87,7 +88,7 @@ func (a *aspect) Record(values []adapter.Value) error {
 
 	op := &servicecontrol.Operation{
 		OperationId:     fmt.Sprintf("%d", rand.Int()), // TODO use uuid
-		OperationName:    "reportMetrics",
+		OperationName:   "reportMetrics",
 		StartTime:       fmt.Sprintf("%d", time.Now()),
 		EndTime:         fmt.Sprintf("%d", time.Now()),
 		MetricValueSets: vs,
