@@ -21,6 +21,7 @@ import (
 
 	"istio.io/mixer/adapter/serviceControl/config"
 	"istio.io/mixer/pkg/adapter"
+	servicecontrol "google.golang.org/api/servicecontrol/v1"
 )
 
 type (
@@ -62,31 +63,31 @@ func (b *builder) ValidateConfig(c adapter.Config) (ce *adapter.ConfigErrors) {
 func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics map[string]*adapter.MetricDefinition) (adapter.MetricsAspect, error) {
 	params := cfg.(*config.Params)
 
-	ss, err := createAPIClient(params.clientId, params.clientSecret, params.scope, params.tokenFile)
+	ss, err := createAPIClient(params.ClientId, params.ClientSecret, params.Scope, params.TokenFile)
 
 	return &aspect{params.ServiceName, ss}, err
 }
 
 func (a *aspect) Record(values []adapter.Value) error {
-	vs := make([]*servicecontrol.MetricValueSet)
+	var vs  []*servicecontrol.MetricValueSet
 	for _, v := range values {
 		var mv servicecontrol.MetricValue
 		mv.Labels = mapLabels(v.Labels)
-		mv.StatTime = v.StartTime
-		mv.EndTime = v.EndTime
+		mv.StartTime = v.StartTime.String()
+		mv.EndTime = v.EndTime.String()
 		i, _ := v.Int64()
 		mv.Int64Value = &i
 
-		ms := &servicecontrol.MericValueSet{
+		ms := &servicecontrol.MetricValueSet{
 			MetricName:   v.Definition.Name,
 			MetricValues: []*servicecontrol.MetricValue{&mv},
 		}
-		vs.append(ms)
+		vs = append(vs, ms)
 	}
 
 	op := &servicecontrol.Operation{
 		OperationId:     fmt.Sprintf("%d", rand.Int()), // TODO use uuid
-		OpeationName:    "reportMetrics",
+		OperationName:    "reportMetrics",
 		StartTime:       fmt.Sprintf("%d", time.Now()),
 		EndTime:         fmt.Sprintf("%d", time.Now()),
 		MetricValueSets: vs,
