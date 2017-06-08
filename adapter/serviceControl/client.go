@@ -15,40 +15,88 @@
 package serviceControl
 
 import (
-	"encoding/gob"
 	"net/http"
 	"os"
+	"io/ioutil"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	servicecontrol "google.golang.org/api/servicecontrol/v1"
+	"istio.io/mixer/pkg/adapter"
+	"fmt"
+	"encoding/json"
 )
 
-func createAPIClient(clientID string, clientSecret string, scope string, tokenFile string) (*servicecontrol.Service, error) {
+func createAPIClient(logger adapter.Logger, clientSecretFile string) (*servicecontrol.Service, error) {
+	logger.Infof("Creating service control client...\n")
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{
 		Transport: http.DefaultTransport})
-	oauthConfig := &oauth2.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		Endpoint:     google.Endpoint,
-		Scopes:       []string{scope},
-	}
-	token, err := tokenFromFile(tokenFile)
+
+	bytes, err := ioutil.ReadFile(clientSecretFile)
 	if err != nil {
 		return nil, err
 	}
-	httpClient := oauthConfig.Client(ctx, token)
+
+	o, err := google.ConfigFromJSON(bytes, servicecontrol.CloudPlatformScope, servicecontrol.ServicecontrolScope)
+	logger.Infof("Created oauth config %v\n", o)
+
+	// TODO need authorize for the first time.
+//	ts, err := authorize(ctx, *o)
+//	if err != nil {
+//		return nil, err
+//	}
+
+//	t, err := ts.Token()
+
+	t, err := o.Exchange(ctx, "4/-wzh6lqur-rLcj_hI1B1hMWTYGETVANetyYB0R43U6U")
+	if err != nil {
+		return nil, err
+	}
+
+	httpClient := o.Client(ctx, t)
 	s, err := servicecontrol.New(httpClient)
+	logger.Infof("Created service control client")
 	return s, err
 }
 
-func tokenFromFile(file string) (*oauth2.Token, error) {
-	f, err := os.Open(file)
+func authorize(ctx context.Context, config oauth2.Config) (oauth2.TokenSource, error) {
+	authURL := config.AuthCodeURL("")
+
+	showURL(authURL)
+
+	code, err := obtainCode()
+
 	if err != nil {
 		return nil, err
 	}
-	t := new(oauth2.Token)
-	err = gob.NewDecoder(f).Decode(t)
-	return t, err
+
+	token, err := config.Exchange(ctx, code)
+
+	if err != nil {
+		return nil, err
+	}
+  showToken(token)
+	return config.TokenSource(ctx, token), nil
+}
+
+func showURL(url string) {
+	fmt.Printf("Please go to >> %s << in order to authorize the prodreview tool.\n\nCopy the code displayed there, and then paste the code here: ", url)
+	os.Stdout.Sync()
+}
+
+func obtainCode() (string, error) {
+	var code string
+	_, err := fmt.Scanln(&code)
+	return code, err
+}
+
+func showToken(token *oauth2.Token) error {
+	jt, err := json.Marshal(token)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Save this token in a secure place and give it to prodreview_tool via --credentials the next time.\n\n")
+	fmt.Println(string(jt))
+	return nil
 }
