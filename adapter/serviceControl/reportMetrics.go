@@ -40,11 +40,8 @@ var (
 	name        = "serviceControl"
 	desc        = "Pushes metrics to service controller"
 	defaultConf = &config.Params{
-		ClientId:     "mixc",
 		ServiceName:  "xiaolan-library-example.sandbox.googleapis.com",
-		ClientSecret: "",
-		Scope:        "",
-		TokenFile:    "",
+		ClientSecretFile:    "/usr/local/google/home/xiaolan/go/src/istio.io/mixer/testdata/configroot/tokens/service_control_xiaolan-api-codelab.json",
 	}
 )
 
@@ -64,12 +61,13 @@ func (b *builder) ValidateConfig(c adapter.Config) (ce *adapter.ConfigErrors) {
 func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics map[string]*adapter.MetricDefinition) (adapter.MetricsAspect, error) {
 	params := cfg.(*config.Params)
 
-	ss, err := createAPIClient(params.ClientId, params.ClientSecret, params.Scope, params.TokenFile)
+	ss, err := createAPIClient(env.Logger(), params.ClientSecretFile)
 
 	return &aspect{params.ServiceName, ss}, err
 }
 
 func (a *aspect) Record(values []adapter.Value) error {
+	fmt.Printf("service control adaptor got metric values: %v", values)
 	var vs []*servicecontrol.MetricValueSet
 	for _, v := range values {
 		// Only for request name.
