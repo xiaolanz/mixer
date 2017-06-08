@@ -15,17 +15,18 @@
 package serviceControl
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
-	"io/ioutil"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	servicecontrol "google.golang.org/api/servicecontrol/v1"
+
 	"istio.io/mixer/pkg/adapter"
-	"fmt"
-	"encoding/json"
 )
 
 func createAPIClient(logger adapter.Logger, clientSecretFile string) (*servicecontrol.Service, error) {
@@ -42,12 +43,12 @@ func createAPIClient(logger adapter.Logger, clientSecretFile string) (*serviceco
 	logger.Infof("Created oauth config %v\n", o)
 
 	// TODO need authorize for the first time.
-//	ts, err := authorize(ctx, *o)
-//	if err != nil {
-//		return nil, err
-//	}
+	//	ts, err := authorize(ctx, *o)
+	//	if err != nil {
+	//		return nil, err
+	//	}
 
-//	t, err := ts.Token()
+	//	t, err := ts.Token()
 
 	t, err := o.Exchange(ctx, "4/-wzh6lqur-rLcj_hI1B1hMWTYGETVANetyYB0R43U6U")
 	if err != nil {
@@ -76,7 +77,7 @@ func authorize(ctx context.Context, config oauth2.Config) (oauth2.TokenSource, e
 	if err != nil {
 		return nil, err
 	}
-  showToken(token)
+	showToken(token)
 	return config.TokenSource(ctx, token), nil
 }
 
