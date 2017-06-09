@@ -29,12 +29,12 @@ import (
 	"istio.io/mixer/pkg/adapter"
 )
 
-func createAPIClient(logger adapter.Logger, clientSecretFile string) (*servicecontrol.Service, error) {
+func createAPIClient(logger adapter.Logger, clientCredentialPath string) (*servicecontrol.Service, error) {
 	logger.Infof("Creating service control client...\n")
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{
 		Transport: http.DefaultTransport})
 
-	bytes, err := ioutil.ReadFile(clientSecretFile)
+	bytes, err := ioutil.ReadFile(clientCredentialPath + "secret.json")
 	if err != nil {
 		return nil, err
 	}
@@ -46,17 +46,17 @@ func createAPIClient(logger adapter.Logger, clientSecretFile string) (*serviceco
 	logger.Infof("Created oauth config %v\n", o)
 
 	// TODO need authorize for the first time.
-	/*
-		authorize(ctx, *o)
+	//
+	//	authorize(ctx, *o)
 
-		t, err := o.Exchange(ctx, "4/FapVg5ebDzZ5_-YTn_jhfvVdyU9Osz5iPwwsLxaQgyA")
+	/*	t, err := o.Exchange(ctx, "4/Qoj0-bLU8WUTKaLB8c3VYCECyJS94EP4gM_sjOjrl5g")
 
 		if err != nil {
 			return nil, err
 		}
 		showToken(t)
-	*/
-	t, err := tokenFromFile("/Users/xiaolan/credentials/token.json")
+*/
+	t, err := tokenFromFile(clientCredentialPath + "token.json")
 
 	if err != nil {
 		return nil, err
@@ -82,8 +82,7 @@ func authorize(ctx context.Context, config oauth2.Config) {
 }
 
 func showURL(url string) {
-	fmt.Printf("Please go to >> %s << in order to authorize the prodreview tool.\n\nCopy the code displayed there, and then paste the code here: ", url)
-	os.Stdout.Sync()
+	fmt.Printf("Authorization URL and copy the code: \n%s\n\n", url)
 }
 
 func obtainCode() (string, error) {
@@ -97,8 +96,7 @@ func showToken(token *oauth2.Token) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Save this token in a secure place and give it to prodreview_tool via --credentials the next time.\n\n")
-	fmt.Println(string(jt))
+	fmt.Printf("Obtained token:\n%s\n\n", string(jt))
 	return nil
 }
 
