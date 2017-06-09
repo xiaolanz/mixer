@@ -12,41 +12,92 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package servicecontrol
+package serviceControl
 
 import (
-	"time"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
 
-	pb "github.com/googleapis/googleapis/google/api/servicecontrol/v1/"
-	"google.golang.org/grpc"
+	"golang.org/x/net/context"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	servicecontrol "google.golang.org/api/servicecontrol/v1"
+
+	"istio.io/mixer/pkg/adapter"
 )
 
-type clientState struct {
-	client     pb.ServiceControlClient
-	connection *grpc.ClientConn
-}
+func createAPIClient(logger adapter.Logger, clientSecretFile string) (*servicecontrol.Service, error) {
+	logger.Infof("Creating service control client...\n")
+	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{
+		Transport: http.DefaultTransport})
 
-func createAPIClient(address string) (*clientState, error) {
-	cs := clientState{}
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
-	var err error
-	if cs.connection, err = grpc.Dial(address, opts...); err != nil {
+	bytes, err := ioutil.ReadFile(clientSecretFile)
+	if err != nil {
 		return nil, err
 	}
 
-	cs.client = pb.NewServiceControlClient(cs.connection)
-	return &cs, nil
+	o, err := google.ConfigFromJSON(bytes, servicecontrol.CloudPlatformScope, servicecontrol.ServicecontrolScope)
+	logger.Infof("Created oauth config %v\n", o)
+
+	// TODO need authorize for the first time.
+	//	ts, err := authorize(ctx, *o)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+
+	//	t, err := ts.Token()
+
+	t, err := o.Exchange(ctx, "4/-wzh6lqur-rLcj_hI1B1hMWTYGETVANetyYB0R43U6U")
+	if err != nil {
+		return nil, err
+	}
+
+	httpClient := o.Client(ctx, t)
+	s, err := servicecontrol.New(httpClient)
+	logger.Infof("Created service control client")
+	return s, err
 }
 
-func deleteAPIClient(cs *clientState) error {
-	// TODO: This is to compensate for this bug: https://github.com/grpc/grpc-go/issues/1059
-	//       Remove this delay once that bug is fixed.
-	time.Sleep(50 * time.Millisecond)
+func authorize(ctx context.Context, config oauth2.Config) (oauth2.TokenSource, error) {
+	authURL := config.AuthCodeURL("")
 
-	err := cs.connection.Close()
-	cs.client = nil
-	cs.connection = nil
-	return err
+	showURL(authURL)
+
+	code, err := obtainCode()
+
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := config.Exchange(ctx, code)
+
+	if err != nil {
+		return nil, err
+	}
+	showToken(token)
+	return config.TokenSource(ctx, token), nil
+}
+
+func showURL(url string) {
+	fmt.Printf("Please go to >> %s << in order to authorize the prodreview tool.\n\nCopy the code displayed there, and then paste the code here: ", url)
+	os.Stdout.Sync()
+}
+
+func obtainCode() (string, error) {
+	var code string
+	_, err := fmt.Scanln(&code)
+	return code, err
+}
+
+func showToken(token *oauth2.Token) error {
+	jt, err := json.Marshal(token)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Save this token in a secure place and give it to prodreview_tool via --credentials the next time.\n\n")
+	fmt.Println(string(jt))
+	return nil
 }

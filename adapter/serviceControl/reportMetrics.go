@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package servicecontrol
+package serviceControl
 
 import (
-	"istio.io/mixer/adapter/servicecontrol/config"
+	"fmt"
+	"math/rand"
+	"time"
+
+	servicecontrol "google.golang.org/api/servicecontrol/v1"
+
+	"istio.io/mixer/adapter/serviceControl/config"
 	"istio.io/mixer/pkg/adapter"
 )
 
@@ -25,15 +31,17 @@ type (
 	}
 
 	aspect struct {
-		clientState *clientState
+		serviceName string
+		service     *servicecontrol.Service
 	}
 )
 
 var (
-	name        = "service_control_metrics"
+	name        = "serviceControl"
 	desc        = "Pushes metrics to service controller"
 	defaultConf = &config.Params{
-		Address: "chemistprober.googleprod.com",
+		ServiceName:      "xiaolan-library-example.sandbox.googleapis.com",
+		ClientSecretFile: "/usr/local/google/home/xiaolan/go/src/istio.io/mixer/testdata/configroot/client_secrets/service_control_xiaolan-api-codelab.json",
 	}
 )
 
@@ -47,26 +55,72 @@ func newBuilder() *builder {
 }
 
 func (b *builder) ValidateConfig(c adapter.Config) (ce *adapter.ConfigErrors) {
-	return
+	return nil
 }
 
 func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics map[string]*adapter.MetricDefinition) (adapter.MetricsAspect, error) {
 	params := cfg.(*config.Params)
 
-	cs, err := createAPIClient(params.Address)
+	ss, err := createAPIClient(env.Logger(), params.ClientSecretFile)
 
-	return &aspect{cs}, err
+	return &aspect{params.ServiceName, ss}, err
 }
 
 func (a *aspect) Record(values []adapter.Value) error {
-	return nil
+	fmt.Printf("service control adaptor got metric values: %v", values)
+	var vs []*servicecontrol.MetricValueSet
+	for _, v := range values {
+		// Only for request name.
+		if v.Definition.Name != "request_count" {
+			continue
+		}
+		var mv servicecontrol.MetricValue
+		mv.Labels = fillLabels(v.Labels)
+		mv.StartTime = v.StartTime.String()
+		mv.EndTime = v.EndTime.String()
+		i, _ := v.Int64()
+		mv.Int64Value = &i
+
+		ms := &servicecontrol.MetricValueSet{
+			MetricName:   "serviceruntime.googleapis.com/api/consumer/request_count",
+			MetricValues: []*servicecontrol.MetricValue{&mv},
+		}
+		vs = append(vs, ms)
+	}
+
+	op := &servicecontrol.Operation{
+		OperationId:     fmt.Sprintf("mixer-test-report-id-%d", rand.Int()), // TODO use uuid
+		OperationName:   "reportMetrics",
+		StartTime:       fmt.Sprintf("%d", time.Now()),
+		EndTime:         fmt.Sprintf("%d", time.Now()),
+		MetricValueSets: vs,
+		Labels:          map[string]string{"cloud.googleapis.com/location": "global"},
+	}
+	rq := &servicecontrol.ReportRequest{
+		Operations: []*servicecontrol.Operation{op},
+	}
+	rp, err := a.service.Services.Report(a.serviceName, rq).Do()
+	fmt.Printf("service control metric response for operation id %s: %v", op.OperationId, rp)
+	return err
+}
+
+func fillLabels(labels map[string]interface{}) map[string]string {
+	ml := make(map[string]string)
+	for k, v := range labels {
+		if k != "response_code" {
+			continue
+		}
+		ml[k] = fmt.Sprintf("%v", v)
+	}
+	return ml
 }
 
 func (a *aspect) record(value adapter.Value) error {
-	//TODO mapping metrics to chemist proto
+	//TODO do not use
 	return nil
 }
 
 func (a *aspect) Close() error {
-	return deleteAPIClient(a.clientState)
+	//TODO doesn't need?
+	return nil
 }
