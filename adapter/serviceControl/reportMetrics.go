@@ -76,8 +76,8 @@ func (a *aspect) Record(values []adapter.Value) error {
 		}
 		var mv servicecontrol.MetricValue
 		mv.Labels = fillLabels(v.Labels)
-//		mv.StartTime = v.StartTime.Format(time.RFC3339)
-//		mv.EndTime = v.EndTime.Format(time.RFC3339)
+		//		mv.StartTime = v.StartTime.Format(time.RFC3339)
+		//		mv.EndTime = v.EndTime.Format(time.RFC3339)
 		i, _ := v.Int64()
 		mv.Int64Value = &i
 
@@ -89,7 +89,7 @@ func (a *aspect) Record(values []adapter.Value) error {
 	}
 
 	op := &servicecontrol.Operation{
-		ConsumerId: "project:xiaolan-api-codelab",
+		ConsumerId:      "project:xiaolan-api-codelab",
 		OperationId:     fmt.Sprintf("mixer-test-report-id-%d", rand.Int()), // TODO use uuid
 		OperationName:   "reportMetrics",
 		StartTime:       time.Now().Format(time.RFC3339),
@@ -100,7 +100,6 @@ func (a *aspect) Record(values []adapter.Value) error {
 	rq := &servicecontrol.ReportRequest{
 		Operations: []*servicecontrol.Operation{op},
 	}
-
 
 	// print out
 	fmt.Printf("service control metric request: %v", len(rq.Operations[0].MetricValueSets))
