@@ -40,6 +40,9 @@ func createAPIClient(logger adapter.Logger, clientSecretFile string) (*serviceco
 	}
 
 	o, err := google.ConfigFromJSON(bytes, servicecontrol.CloudPlatformScope, servicecontrol.ServicecontrolScope)
+	if err != nil {
+		return nil, err
+	}
 	logger.Infof("Created oauth config %v\n", o)
 
 	// TODO need authorize for the first time.
@@ -53,7 +56,7 @@ func createAPIClient(logger adapter.Logger, clientSecretFile string) (*serviceco
 		}
 		showToken(t)
 	*/
-	t, err := tokenFromFile("/usr/local/google/home/xiaolan/go/src/istio.io/mixer/testdata/configroot/client_secrets/service_control_xiaolan-api-codelab.token")
+	t, err := tokenFromFile("/Users/xiaolan/credentials/token.json")
 
 	if err != nil {
 		return nil, err

@@ -41,7 +41,7 @@ var (
 	desc        = "Pushes metrics to service controller"
 	defaultConf = &config.Params{
 		ServiceName:      "xiaolan-library-example.sandbox.googleapis.com",
-		ClientSecretFile: "/usr/local/google/home/xiaolan/go/src/istio.io/mixer/testdata/configroot/client_secrets/service_control_xiaolan-api-codelab.json",
+		ClientSecretFile: "/Users/xiaolan/credentials/secret.json",
 	}
 )
 
