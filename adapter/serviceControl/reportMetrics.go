@@ -67,7 +67,7 @@ func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics ma
 }
 
 func (a *aspect) Record(values []adapter.Value) error {
-	fmt.Printf("service control adaptor got metric values: %v", values)
+	fmt.Printf("service control adaptor got metric values: %v\n", values)
 	var vs []*servicecontrol.MetricValueSet
 	for _, v := range values {
 		// Only for request name.
@@ -76,8 +76,8 @@ func (a *aspect) Record(values []adapter.Value) error {
 		}
 		var mv servicecontrol.MetricValue
 		mv.Labels = fillLabels(v.Labels)
-		mv.StartTime = v.StartTime.String()
-		mv.EndTime = v.EndTime.String()
+		//		mv.StartTime = v.StartTime.Format(time.RFC3339)
+		//		mv.EndTime = v.EndTime.Format(time.RFC3339)
 		i, _ := v.Int64()
 		mv.Int64Value = &i
 
@@ -89,16 +89,21 @@ func (a *aspect) Record(values []adapter.Value) error {
 	}
 
 	op := &servicecontrol.Operation{
+		ConsumerId:      "project:xiaolan-api-codelab",
 		OperationId:     fmt.Sprintf("mixer-test-report-id-%d", rand.Int()), // TODO use uuid
 		OperationName:   "reportMetrics",
-		StartTime:       fmt.Sprintf("%d", time.Now()),
-		EndTime:         fmt.Sprintf("%d", time.Now()),
+		StartTime:       time.Now().Format(time.RFC3339),
+		EndTime:         time.Now().Format(time.RFC3339),
 		MetricValueSets: vs,
 		Labels:          map[string]string{"cloud.googleapis.com/location": "global"},
 	}
 	rq := &servicecontrol.ReportRequest{
 		Operations: []*servicecontrol.Operation{op},
 	}
+
+	// print out
+	fmt.Printf("service control metric request: %v", len(rq.Operations[0].MetricValueSets))
+
 	rp, err := a.service.Services.Report(a.serviceName, rq).Do()
 	fmt.Printf("service control metric response for operation id %s: %v", op.OperationId, rp)
 	return err
@@ -110,7 +115,8 @@ func fillLabels(labels map[string]interface{}) map[string]string {
 		if k != "response_code" {
 			continue
 		}
-		ml[k] = fmt.Sprintf("%v", v)
+		nk := fmt.Sprintf("/%s", k)
+		ml[nk] = fmt.Sprintf("%v", v)
 	}
 	return ml
 }
