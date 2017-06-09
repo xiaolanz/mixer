@@ -41,7 +41,7 @@ var (
 	desc        = "Pushes metrics to service controller"
 	defaultConf = &config.Params{
 		ServiceName:      "xiaolan-library-example.sandbox.googleapis.com",
-		ClientSecretFile: "/Users/xiaolan/credentials/secret.json",
+		ClientCredentialPath: "/Users/xiaolan/credentials/",
 	}
 )
 
@@ -61,7 +61,7 @@ func (b *builder) ValidateConfig(c adapter.Config) (ce *adapter.ConfigErrors) {
 func (*builder) NewMetricsAspect(env adapter.Env, cfg adapter.Config, metrics map[string]*adapter.MetricDefinition) (adapter.MetricsAspect, error) {
 	params := cfg.(*config.Params)
 
-	ss, err := createAPIClient(env.Logger(), params.ClientSecretFile)
+	ss, err := createAPIClient(env.Logger(), params.ClientCredentialPath)
 
 	return &aspect{params.ServiceName, ss}, err
 }
