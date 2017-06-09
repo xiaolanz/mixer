@@ -44,18 +44,18 @@ func createAPIClient(logger adapter.Logger, clientSecretFile string) (*serviceco
 
 	// TODO need authorize for the first time.
 	/*
-	authorize(ctx, *o)
+		authorize(ctx, *o)
 
-	t, err := o.Exchange(ctx, "4/FapVg5ebDzZ5_-YTn_jhfvVdyU9Osz5iPwwsLxaQgyA")
+		t, err := o.Exchange(ctx, "4/FapVg5ebDzZ5_-YTn_jhfvVdyU9Osz5iPwwsLxaQgyA")
 
-	if err != nil {
-		return nil, err
-	}
-	showToken(t)
+		if err != nil {
+			return nil, err
+		}
+		showToken(t)
 	*/
 	t, err := tokenFromFile("/usr/local/google/home/xiaolan/go/src/istio.io/mixer/testdata/configroot/client_secrets/service_control_xiaolan-api-codelab.token")
 
-	if err!= nil {
+	if err != nil {
 		return nil, err
 	}
 	o.TokenSource(ctx, t)
@@ -70,7 +70,7 @@ func createAPIClient(logger adapter.Logger, clientSecretFile string) (*serviceco
 	return s, err
 }
 
-func authorize(ctx context.Context, config oauth2.Config){
+func authorize(ctx context.Context, config oauth2.Config) {
 	authURL := config.AuthCodeURL("")
 
 	showURL(authURL)
@@ -100,18 +100,18 @@ func showToken(token *oauth2.Token) error {
 }
 
 func tokenFromFile(file string) (*oauth2.Token, error) {
-		f, err := os.Open(file)
-		defer f.Close()
+	f, err := os.Open(file)
+	defer f.Close()
 
-		if err != nil {
-			return nil, err
-		}
+	if err != nil {
+		return nil, err
+	}
 
-		jt, err := ioutil.ReadAll(f)
+	jt, err := ioutil.ReadAll(f)
 
-		if err != nil {
-			return nil, err
-		}
+	if err != nil {
+		return nil, err
+	}
 
 	t := new(oauth2.Token)
 	err = json.Unmarshal(jt, &t)
