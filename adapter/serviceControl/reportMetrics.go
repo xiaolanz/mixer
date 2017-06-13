@@ -101,8 +101,7 @@ func (a *aspect) Record(values []adapter.Value) error {
 		Operations: []*servicecontrol.Operation{op},
 	}
 
-	// print out
-	fmt.Printf("service control metric request: %v", len(rq.Operations[0].MetricValueSets))
+	fmt.Printf("service control metric request: %v\n", len(rq.Operations[0].MetricValueSets))
 
 	rp, err := a.service.Services.Report(a.serviceName, rq).Do()
 	fmt.Printf("service control metric response for operation id %s: %v", op.OperationId, rp)
