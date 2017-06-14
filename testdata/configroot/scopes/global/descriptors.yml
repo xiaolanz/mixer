@@ -165,31 +165,35 @@ quotas:
   - name: RequestCount
     rate_limit: true
 logs:
-  - name: accesslog.common
-    display_name: Apache Common Log Format
+#  - name: accesslog.common
+#    display_name: Apache Common Log Format
+#    payload_format: TEXT
+#    log_template: '{{or (.originIp) "-"}} - {{or (.sourceUser) "-"}} [{{or (.timestamp.Format "02/Jan/2006:15:04:05 -0700") "-"}}] "{{or (.method) "-"}} {{or (.url) "-"}} {{or (.protocol) "-"}}" {{or (.responseCode) "-"}} {{or (.responseSize) "-"}}'
+#    labels:
+#      originIp: 6 # IP_ADDRESS
+#      sourceUser: 1 # STRING
+#      timestamp: 5 # TIMESTAMP
+#      method: 1 # STRING
+#      url: 1 # STRING
+#      protocol: 1 # STRING
+#      responseCode: 2 # INT64
+#      responseSize: 2 # INT64
+#  - name: accesslog.combined
+#    display_name: Apache Combined Log Format
+#    payload_format: TEXT
+#    log_template: '{{or (.originIp) "-"}} - {{or (.sourceUser) "-"}} [{{or (.timestamp.Format "02/Jan/2006:15:04:05 -0700") "-"}}] "{{or (.method) "-"}} {{or (.url) "-"}} {{or (.protocol) "-"}}" {{or (.responseCode) "-"}} {{or (.responseSize) "-"}} {{or (.referer) "-"}} {{or (.userAgent) "-"}}'
+#    labels:
+#      originIp: 6 # IP_ADDRESS
+#      sourceUser: 1 # STRING
+#      timestamp: 5 # TIMESTAMP
+#      method: 1 # STRING
+#      url: 1 # STRING
+#      protocol: 1 # STRING
+#      responseCode: 2 # INT64
+#      responseSize: 2 # INT64
+#      referer: 1 # STRING
+#      userAgent: 1 # STRING
+  - name: applicationlog
+    display_name: Application Log Format
     payload_format: TEXT
-    log_template: '{{or (.originIp) "-"}} - {{or (.sourceUser) "-"}} [{{or (.timestamp.Format "02/Jan/2006:15:04:05 -0700") "-"}}] "{{or (.method) "-"}} {{or (.url) "-"}} {{or (.protocol) "-"}}" {{or (.responseCode) "-"}} {{or (.responseSize) "-"}}'
-    labels:
-      originIp: 6 # IP_ADDRESS
-      sourceUser: 1 # STRING
-      timestamp: 5 # TIMESTAMP
-      method: 1 # STRING
-      url: 1 # STRING
-      protocol: 1 # STRING
-      responseCode: 2 # INT64
-      responseSize: 2 # INT64
-  - name: accesslog.combined
-    display_name: Apache Combined Log Format
-    payload_format: TEXT
-    log_template: '{{or (.originIp) "-"}} - {{or (.sourceUser) "-"}} [{{or (.timestamp.Format "02/Jan/2006:15:04:05 -0700") "-"}}] "{{or (.method) "-"}} {{or (.url) "-"}} {{or (.protocol) "-"}}" {{or (.responseCode) "-"}} {{or (.responseSize) "-"}} {{or (.referer) "-"}} {{or (.userAgent) "-"}}'
-    labels:
-      originIp: 6 # IP_ADDRESS
-      sourceUser: 1 # STRING
-      timestamp: 5 # TIMESTAMP
-      method: 1 # STRING
-      url: 1 # STRING
-      protocol: 1 # STRING
-      responseCode: 2 # INT64
-      responseSize: 2 # INT64
-      referer: 1 # STRING
-      userAgent: 1 # STRING
+    log_template: '[mixer test log]{{or (.responseCode) "-"}}'
