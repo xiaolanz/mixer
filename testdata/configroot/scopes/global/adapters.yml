@@ -5,9 +5,9 @@ adapters:
     impl: memQuota
     params:
   - name: default
-    impl: stdioLogger
+    kind: application-logs
+    impl: serviceControl
     params:
-      logStream: STDERR
   - name: default
     kind: metrics
     impl: serviceControl

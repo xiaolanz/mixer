@@ -54,26 +54,36 @@ rules:
           method: request.path | "unknown"
           version: target.labels["version"] | "unknown"
           response_code: response.code | 200
-  - kind: access-logs
+#  - kind: access-logs
+#    params:
+#      logName: access_log
+#      log:
+#        descriptor_name: accesslog.common
+#        template_expressions:
+#           originIp: origin.ip
+#           sourceUser: origin.user
+#           timestamp: request.time
+#           method: request.method
+#           url: request.path
+#           protocol: request.scheme
+#           responseCode: response.code
+#           responseSize: response.size
+#        labels:
+#           originIp: origin.ip
+#           sourceUser: origin.user
+#           timestamp: request.time
+#           method: request.method
+#           url: request.path
+#           protocol: request.scheme
+#           responseCode: response.code
+#           responseSize: response.size
+  - kind: application-logs
     params:
-      logName: access_log
-      log:
-        descriptor_name: accesslog.common
+      logName: "mixer client log"
+      logs:
+      - descriptor_name: applicationlog
+        severity: "INFO"
+        timestamp: request.time
+        time_format: "02/Jan/2006:15:04:05 -0700"
         template_expressions:
-           originIp: origin.ip
-           sourceUser: origin.user
-           timestamp: request.time
-           method: request.method
-           url: request.path
-           protocol: request.scheme
-           responseCode: response.code
-           responseSize: response.size
-        labels:
-           originIp: origin.ip
-           sourceUser: origin.user
-           timestamp: request.time
-           method: request.method
-           url: request.path
-           protocol: request.scheme
-           responseCode: response.code
-           responseSize: response.size
+          response_code: response.code | 200

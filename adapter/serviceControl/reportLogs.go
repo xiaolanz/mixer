@@ -71,10 +71,8 @@ func (l *logger) Log(entries []adapter.LogEntry) error {
 	for _, e := range entries {
 		l := &servicecontrol.LogEntry {
 			Name: e.LogName,
-			Labels: e.Labels,
 			Severity: e.Severity.String(),
 			TextPayload: e.TextPlayload,
-			StructPayload: e.StructPayload,
 			Timestamp: e.Timestamp,
 		}
 		ls = append(ls, l)
