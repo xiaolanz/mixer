@@ -90,7 +90,7 @@ func (a *aspect) Record(values []adapter.Value) error {
 
 	op := &servicecontrol.Operation{
 		ConsumerId:      "project:xiaolan-api-codelab",
-		OperationId:     fmt.Sprintf("mixer-test-report-id-%d", rand.Int()), // TODO use uuid
+		OperationId:     fmt.Sprintf("mixer-metric-report-id-%d", rand.Int()), // TODO use uuid
 		OperationName:   "reportMetrics",
 		StartTime:       time.Now().Format(time.RFC3339),
 		EndTime:         time.Now().Format(time.RFC3339),
@@ -101,7 +101,8 @@ func (a *aspect) Record(values []adapter.Value) error {
 		Operations: []*servicecontrol.Operation{op},
 	}
 
-	fmt.Printf("service control metric request: %v\n", len(rq.Operations[0].MetricValueSets))
+	// print out
+	fmt.Printf("service control metric request: %v", len(rq.Operations[0].MetricValueSets))
 
 	rp, err := a.service.Services.Report(a.serviceName, rq).Do()
 	fmt.Printf("service control metric response for operation id %s: %v", op.OperationId, rp)
