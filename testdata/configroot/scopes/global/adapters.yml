@@ -6,7 +6,7 @@ adapters:
     params:
   - name: default
     kind: application-logs
-    impl: serviceControl
+    impl: serviceControlLogger
     params:
   - name: default
     kind: metrics

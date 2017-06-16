@@ -14,14 +14,17 @@
 
 // Package stdioLogger provides an implementation of Mixer's logger aspect that
 // writes logs (serialized as JSON) to a standard stream (stdout | stderr).
-package serviceControl
+package serviceControlLogger
 
 import (
 	"encoding/json"
 	"io"
+	"fmt"
+	"math/rand"
+	"time"
 
 	servicecontrol "google.golang.org/api/servicecontrol/v1"
-	"istio.io/mixer/adapter/serviceControl/config"
+	"istio.io/mixer/adapter/serviceControlLogger/config"
 	"istio.io/mixer/pkg/adapter"
 )
 
@@ -37,7 +40,7 @@ type (
 // Register records the builders exposed by this adapter.
 func Register(r adapter.Registrar) {
 	b := builder{adapter.NewDefaultBuilder(
-		"serviceControl",
+		"serviceControlLogger",
 		"Writes log entries to service controller",
 		&config.Params{
 			ServiceName:      "xiaolan-library-example.sandbox.googleapis.com",
@@ -50,14 +53,14 @@ func Register(r adapter.Registrar) {
 }
 
 func (builder) NewApplicationLogsAspect(env adapter.Env, cfg adapter.Config) (adapter.ApplicationLogsAspect, error) {
-	return newLogger(cfg)
+	return newLogger(env, cfg)
 }
 
 func (builder) NewAccessLogsAspect(env adapter.Env, cfg adapter.Config) (adapter.AccessLogsAspect, error) {
-	return newLogger(cfg)
+	return newLogger(env, cfg)
 }
 
-func newLogger(cfg adapter.Config) (*logger, error) {
+func newLogger(env adapter.Env, cfg adapter.Config) (*logger, error) {
 	params := cfg.(*config.Params)
 
 	ss, err := createAPIClient(env.Logger(), params.ClientCredentialPath)
@@ -66,13 +69,13 @@ func newLogger(cfg adapter.Config) (*logger, error) {
 }
 
 func (l *logger) Log(entries []adapter.LogEntry) error {
-	fmt.Printf("service control adaptor got log entriess: %v\n", entries)
-	var ls []*servicecontrol.LogEntries
+	fmt.Printf("service control adaptor got log entries: %v\n", entries)
+	var ls []*servicecontrol.LogEntry
 	for _, e := range entries {
 		l := &servicecontrol.LogEntry {
 			Name: e.LogName,
 			Severity: e.Severity.String(),
-			TextPayload: e.TextPlayload,
+			TextPayload: e.TextPayload,
 			Timestamp: e.Timestamp,
 		}
 		ls = append(ls, l)
@@ -80,7 +83,7 @@ func (l *logger) Log(entries []adapter.LogEntry) error {
 
 	op := &servicecontrol.Operation{
 		ConsumerId:      "project:xiaolan-api-codelab",
-		OperationId:     fmt.Sprintf("mixer-test-report-id-%d", rand.Int()), // TODO use uuid
+		OperationId:     fmt.Sprintf("mixer-log-report-id-%d", rand.Int()), // TODO use uuid
 		OperationName:   "reportLogs",
 		StartTime:       time.Now().Format(time.RFC3339),
 		EndTime:         time.Now().Format(time.RFC3339),
@@ -92,10 +95,10 @@ func (l *logger) Log(entries []adapter.LogEntry) error {
 		Operations: []*servicecontrol.Operation{op},
 	}
 
-	fmt.Printf("service control metric request: %v\n", len(rq.Operations[0].MetricValueSets))
+	fmt.Printf("service control log request: %v\n", len(rq.Operations[0].LogEntries))
 
 	rp, err := l.service.Services.Report(l.serviceName, rq).Do()
-	fmt.Printf("service control metric response for operation id %s: %v", op.OperationId, rp)
+	fmt.Printf("service control log response for operation id %s: %v", op.OperationId, rp)
 	return err
 }
 
