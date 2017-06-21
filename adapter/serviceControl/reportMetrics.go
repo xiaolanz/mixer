@@ -72,6 +72,7 @@ func (a *aspect) Record(values []adapter.Value) error {
 	for _, v := range values {
 		// Only for request name.
 		if v.Definition.Name != "request_count" {
+			fmt.Printf("service control metric get other name: %s\n", v.Definition.Name)
 			continue
 		}
 		var mv servicecontrol.MetricValue
@@ -82,14 +83,14 @@ func (a *aspect) Record(values []adapter.Value) error {
 		mv.Int64Value = &i
 
 		ms := &servicecontrol.MetricValueSet{
-			MetricName:   "serviceruntime.googleapis.com/api/consumer/request_count",
+			MetricName:   "serviceruntime.googleapis.com/api/producer/request_count",
 			MetricValues: []*servicecontrol.MetricValue{&mv},
 		}
 		vs = append(vs, ms)
 	}
 
 	op := &servicecontrol.Operation{
-		ConsumerId:      "project:xiaolan-api-codelab",
+	//	ConsumerId:      "project:xiaolan-api-codelab",
 		OperationId:     fmt.Sprintf("mixer-metric-report-id-%d", rand.Int()), // TODO use uuid
 		OperationName:   "reportMetrics",
 		StartTime:       time.Now().Format(time.RFC3339),
