@@ -82,13 +82,14 @@ func (l *logger) Log(entries []adapter.LogEntry) error {
 	}
 
 	op := &servicecontrol.Operation{
-		ConsumerId:      "project:xiaolan-api-codelab",
+	//	ConsumerId:      "project:xiaolan-api-codelab",
 		OperationId:     fmt.Sprintf("mixer-log-report-id-%d", rand.Int()), // TODO use uuid
 		OperationName:   "reportLogs",
 		StartTime:       time.Now().Format(time.RFC3339),
 		EndTime:         time.Now().Format(time.RFC3339),
 		LogEntries: ls,
 		Labels:          map[string]string{"cloud.googleapis.com/location": "global"},
+		Importance: "HIGH",
 	}
 
 	rq := &servicecontrol.ReportRequest{
