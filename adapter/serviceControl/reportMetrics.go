@@ -96,7 +96,8 @@ func (a *aspect) Record(values []adapter.Value) error {
 		StartTime:       time.Now().Format(time.RFC3339),
 		EndTime:         time.Now().Format(time.RFC3339),
 		MetricValueSets: vs,
-		Labels:          map[string]string{"cloud.googleapis.com/location": "global"},
+		Labels:          map[string]string{"cloud.googleapis.com/location": "global",
+		"serviceruntime.googleapis.com/api_method": "google.example.library.v1.LibraryService.MoveBook"},
 	}
 	rq := &servicecontrol.ReportRequest{
 		Operations: []*servicecontrol.Operation{op},
