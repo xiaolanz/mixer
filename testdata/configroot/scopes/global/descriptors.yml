@@ -196,4 +196,4 @@ logs:
   - name: applicationlog
     display_name: Application Log Format
     payload_format: TEXT
-    log_template: '[mixer test log]{{or (.responseCode) "-"}}'
+    log_template: '[mixer test log]{{or (.response_code) "-"}}'
