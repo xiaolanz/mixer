@@ -40,7 +40,7 @@ var (
 	name        = "serviceControl"
 	desc        = "Pushes metrics to service controller"
 	defaultConf = &config.Params{
-		ServiceName:      "xiaolan-library-example.sandbox.googleapis.com",
+		ServiceName:          "xiaolan-library-example.sandbox.googleapis.com",
 		ClientCredentialPath: "/Users/xiaolan/credentials/",
 	}
 )
@@ -90,14 +90,14 @@ func (a *aspect) Record(values []adapter.Value) error {
 	}
 
 	op := &servicecontrol.Operation{
-	//	ConsumerId:      "project:xiaolan-api-codelab",
+		//	ConsumerId:      "project:xiaolan-api-codelab",
 		OperationId:     fmt.Sprintf("mixer-metric-report-id-%d", rand.Int()), // TODO use uuid
 		OperationName:   "reportMetrics",
 		StartTime:       time.Now().Format(time.RFC3339),
 		EndTime:         time.Now().Format(time.RFC3339),
 		MetricValueSets: vs,
-		Labels:          map[string]string{"cloud.googleapis.com/location": "global",
-		"serviceruntime.googleapis.com/api_method": "google.example.library.v1.LibraryService.MoveBook"},
+		Labels: map[string]string{"cloud.googleapis.com/location": "global",
+			"serviceruntime.googleapis.com/api_method": "google.example.library.v1.LibraryService.MoveBook"},
 	}
 	rq := &servicecontrol.ReportRequest{
 		Operations: []*servicecontrol.Operation{op},

@@ -18,12 +18,13 @@ package serviceControlLogger
 
 import (
 	"encoding/json"
-	"io"
 	"fmt"
+	"io"
 	"math/rand"
 	"time"
 
 	servicecontrol "google.golang.org/api/servicecontrol/v1"
+
 	"istio.io/mixer/adapter/serviceControlLogger/config"
 	"istio.io/mixer/pkg/adapter"
 )
@@ -43,7 +44,7 @@ func Register(r adapter.Registrar) {
 		"serviceControlLogger",
 		"Writes log entries to service controller",
 		&config.Params{
-			ServiceName:      "xiaolan-library-example.sandbox.googleapis.com",
+			ServiceName:          "xiaolan-library-example.sandbox.googleapis.com",
 			ClientCredentialPath: "/Users/xiaolan/credentials/",
 		},
 	)}
@@ -72,24 +73,24 @@ func (l *logger) Log(entries []adapter.LogEntry) error {
 	fmt.Printf("service control adaptor got log entries: %v\n", entries)
 	var ls []*servicecontrol.LogEntry
 	for _, e := range entries {
-		l := &servicecontrol.LogEntry {
-			Name: e.LogName,
-			Severity: e.Severity.String(),
+		l := &servicecontrol.LogEntry{
+			Name:        e.LogName,
+			Severity:    e.Severity.String(),
 			TextPayload: e.TextPayload,
-			Timestamp: e.Timestamp,
+			Timestamp:   e.Timestamp,
 		}
 		ls = append(ls, l)
 	}
 
 	op := &servicecontrol.Operation{
-	//	ConsumerId:      "project:xiaolan-api-codelab",
-		OperationId:     fmt.Sprintf("mixer-log-report-id-%d", rand.Int()), // TODO use uuid
-		OperationName:   "reportLogs",
-		StartTime:       time.Now().Format(time.RFC3339),
-		EndTime:         time.Now().Format(time.RFC3339),
-		LogEntries: ls,
-		Labels:          map[string]string{"cloud.googleapis.com/location": "global"},
-		Importance: "HIGH",
+		//	ConsumerId:      "project:xiaolan-api-codelab",
+		OperationId:   fmt.Sprintf("mixer-log-report-id-%d", rand.Int()), // TODO use uuid
+		OperationName: "reportLogs",
+		StartTime:     time.Now().Format(time.RFC3339),
+		EndTime:       time.Now().Format(time.RFC3339),
+		LogEntries:    ls,
+		Labels:        map[string]string{"cloud.googleapis.com/location": "global"},
+		Importance:    "HIGH",
 	}
 
 	rq := &servicecontrol.ReportRequest{
