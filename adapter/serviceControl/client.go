@@ -55,7 +55,7 @@ func createAPIClient(logger adapter.Logger, clientCredentialPath string) (*servi
 			return nil, err
 		}
 		showToken(t)
-*/
+	*/
 	t, err := tokenFromFile(clientCredentialPath + "token.json")
 
 	if err != nil {
