@@ -8,9 +8,13 @@ adapters:
     kind: application-logs
     impl: serviceControlLogger
     params:
-  - name: default
+  - name: serviceControl
     kind: metrics
     impl: serviceControl
+    params:
+  - name: prometheus
+    kind: metrics
+    impl: prometheus
     params:
   - name: default
     impl: denyChecker
