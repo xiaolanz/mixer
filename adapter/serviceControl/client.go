@@ -34,41 +34,10 @@ func createAPIClient(logger adapter.Logger, clientCredentialPath string) (*servi
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{
 		Transport: http.DefaultTransport})
 
-	bytes, err := ioutil.ReadFile(clientCredentialPath + "secret.json")
-	if err != nil {
-		return nil, err
-	}
+	ts := google.ComputeTokenSource("752246446312-compute@developer.gserviceaccount.com")
+	c := oauth2.NewClient(ctx, ts)
 
-	o, err := google.ConfigFromJSON(bytes, servicecontrol.CloudPlatformScope, servicecontrol.ServicecontrolScope)
-	if err != nil {
-		return nil, err
-	}
-	logger.Infof("Created oauth config %v\n", o)
-
-	// TODO need authorize for the first time.
-	//
-	//	authorize(ctx, *o)
-
-	/*	t, err := o.Exchange(ctx, "4/Qoj0-bLU8WUTKaLB8c3VYCECyJS94EP4gM_sjOjrl5g")
-
-		if err != nil {
-			return nil, err
-		}
-		showToken(t)
-	*/
-	t, err := tokenFromFile(clientCredentialPath + "token.json")
-
-	if err != nil {
-		return nil, err
-	}
-	o.TokenSource(ctx, t)
-
-	if err != nil {
-		return nil, err
-	}
-
-	httpClient := o.Client(ctx, t)
-	s, err := servicecontrol.New(httpClient)
+	s, err := servicecontrol.New(c)
 	logger.Infof("Created service control client")
 	return s, err
 }
