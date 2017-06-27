@@ -34,6 +34,7 @@ rules:
         expiration: 1s
   - kind: metrics
     adapter: serviceControl
+    adapter: prometheus
     params:
       metrics:
       - descriptor_name: request_count

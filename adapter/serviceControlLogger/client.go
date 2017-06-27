@@ -34,10 +34,17 @@ func createAPIClient(logger adapter.Logger, clientCredentialPath string) (*servi
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{
 		Transport: http.DefaultTransport})
 
-	ts := google.ComputeTokenSource("752246446312-compute@developer.gserviceaccount.com")
-	c := oauth2.NewClient(ctx, ts)
+	c, err := google.DefaultClient(ctx, servicecontrol.CloudPlatformScope, servicecontrol.ServicecontrolScope)
+	if err != nil {
+		logger.Errorf("Created http client error %s\n", err.Error())
+		return nil, err
+	}
 
 	s, err := servicecontrol.New(c)
+	if err != nil {
+		logger.Errorf("Created service control client error %s\n", err.Error())
+		return nil, err
+	}
 	logger.Infof("Created service control client")
 	return s, err
 }
