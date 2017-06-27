@@ -100,7 +100,7 @@ func (l *logger) Log(entries []adapter.LogEntry) error {
 	fmt.Printf("service control log request: %v\n", len(rq.Operations[0].LogEntries))
 
 	rp, err := l.service.Services.Report(l.serviceName, rq).Do()
-	fmt.Printf("service control log response for operation id %s: %v", op.OperationId, rp)
+	fmt.Printf("service control log response for operation id %s: %v\n", op.OperationId, rp)
 	return err
 }
 
