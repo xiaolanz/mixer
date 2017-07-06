@@ -31,6 +31,7 @@ import (
 
 func createAPIClient(logger adapter.Logger, clientCredentialPath string) (*servicecontrol.Service, error) {
 	logger.Infof("Creating service control client...\n")
+
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{
 		Transport: http.DefaultTransport})
 
