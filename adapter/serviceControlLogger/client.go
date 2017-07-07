@@ -35,6 +35,11 @@ func createAPIClient(logger adapter.Logger, clientCredentialPath string) (*servi
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{
 		Transport: http.DefaultTransport})
 
+	// print token source
+	ts, err := google.DefaultTokenSource(ctx, servicecontrol.CloudPlatformScope, servicecontrol.ServicecontrolScope)
+	t, err := ts.Token()
+	showToken(t)
+
 	c, err := google.DefaultClient(ctx, servicecontrol.CloudPlatformScope, servicecontrol.ServicecontrolScope)
 	if err != nil {
 		logger.Errorf("Created http client error %s\n", err.Error())
